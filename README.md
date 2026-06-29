@@ -1,13 +1,17 @@
 # I hate Grid 😈
 
 > **That one annoying table. Grabbed in two clicks.**
-> No more retyping cells. No more "paste → fix every column" ritual. Just grab the table and go.
+
+No more retyping cells. No more "paste → fix every column" ritual. Just grab the table and go.
 
 You know the ritual. An email shows up with a beautiful table — a ledger, a SAP
 export, a list of vendors. You drag to select it, you paste it, and… it explodes
-into one sad linear smear of text. Columns? Gone. Rows? A rumor. Your soul? Crushed.
+into one sad linear smear of text. 
 
-I made this freeware out of pure workplace spite. **I hate Grid** lets you yank any
+Columns? Gone. Rows? A rumor. Your soul? Crushed.
+
+I made this freeware out of pure workplace spite. 
+**I hate Grid** lets you yank any
 on-screen table into a real, Excel-style grid you can actually select columns from.
 
 **Alt + double-click a table → it pops up as a grid → grab the columns you want → paste into Excel.** Done. 😈
