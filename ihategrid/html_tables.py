@@ -1,10 +1,11 @@
-"""HTML 클립보드 → 표(2차원 셀 배열) 추출.
+"""Extract tables (2-D cell arrays) from clipboard HTML.
 
-이메일/웹에서 표를 드래그-복사하면 붙여넣기는 한 줄로 망가져도
-클립보드의 'text/html'(CF_HTML)에는 <table> 구조가 그대로 남는다.
-이 모듈은 그 HTML에서 표들을 골라 행/열 격자로 복원한다.
+When you drag-copy a table from an email/web page, pasting it as text
+collapses to one line — but the clipboard's 'text/html' (CF_HTML) still
+holds the full <table> structure. This module pulls those tables out of
+the HTML and rebuilds them as row/column grids.
 
-rowspan/colspan을 펼쳐서 진짜 직사각형 격자로 만들어 준다.
+rowspan/colspan are expanded so the result is a real rectangular grid.
 """
 from __future__ import annotations
 
@@ -26,15 +27,15 @@ class _RawTable:
 
 
 class _TableExtractor(HTMLParser):
-    """<table> 안의 셀만 모은다. 중첩 표는 가장 바깥 기준으로 분리."""
+    """Collect cells inside <table>. Nested tables are split by the outermost."""
 
-    # 셀 텍스트에서 무시할(공백 취급) 인라인 태그
+    # inline tags treated as whitespace/line breaks inside cell text
     _BLOCK_BREAK = {"br", "p", "div", "li", "tr"}
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.tables: list[_RawTable] = []
-        self._depth = 0          # table 중첩 깊이
+        self._depth = 0          # table nesting depth
         self._cur: _RawTable | None = None
         self._cur_row: list[_Cell] | None = None
         self._cur_cell: _Cell | None = None
@@ -55,7 +56,7 @@ class _TableExtractor(HTMLParser):
     def _flush_cell_text(self) -> str:
         text = "".join(self._buf)
         self._buf.clear()
-        # 줄바꿈/연속 공백 정리
+        # normalize newlines / collapse runs of whitespace
         text = text.replace("\xa0", " ")
         text = re.sub(r"[ \t]*\n[ \t]*", "\n", text)
         text = re.sub(r"[ \t]+", " ", text)
@@ -108,7 +109,7 @@ class _TableExtractor(HTMLParser):
 
 
 def _expand(raw: _RawTable) -> list[list[str]]:
-    """rowspan/colspan을 펼쳐 직사각형 문자열 격자로."""
+    """Expand rowspan/colspan into a rectangular grid of strings."""
     grid: list[list[str | None]] = []
 
     def ensure(r: int, c: int) -> None:
@@ -121,7 +122,7 @@ def _expand(raw: _RawTable) -> list[list[str]]:
     for r, row in enumerate(raw.rows):
         c = 0
         for cell in row:
-            # 이미 위 행의 rowspan이 채운 칸은 건너뛴다
+            # skip cells already filled by a rowspan from a row above
             ensure(r, c)
             while c < len(grid[r]) and grid[r][c] is not None:
                 c += 1
@@ -129,7 +130,7 @@ def _expand(raw: _RawTable) -> list[list[str]]:
                 for dc in range(cell.colspan):
                     rr, cc = r + dr, c + dc
                     ensure(rr, cc)
-                    # 병합된 칸: 좌상단만 텍스트, 나머지는 빈칸
+                    # merged cell: text only in the top-left, rest blank
                     grid[rr][cc] = cell.text if (dr == 0 and dc == 0) else ""
             c += cell.colspan
 
@@ -141,9 +142,9 @@ def _expand(raw: _RawTable) -> list[list[str]]:
 
 
 def extract_tables(html: str) -> list[list[list[str]]]:
-    """HTML 문자열 → 표 목록. 각 표는 list[행][열]=str.
+    """HTML string -> list of tables. Each table is list[row][col]=str.
 
-    빈 표나 1x1짜리 잡음은 제외한다.
+    Empty tables and 1x1 noise are excluded.
     """
     p = _TableExtractor()
     try:
@@ -159,7 +160,7 @@ def extract_tables(html: str) -> list[list[list[str]]]:
         rows, cols = len(grid), len(grid[0]) if grid else 0
         if rows * cols <= 1:
             continue
-        # 완전히 빈 표 제외
+        # drop completely empty tables
         if not any(any(cell.strip() for cell in row) for row in grid):
             continue
         tables.append(grid)

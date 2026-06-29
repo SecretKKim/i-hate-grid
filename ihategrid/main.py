@@ -525,7 +525,7 @@ def main() -> int:
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     if not QSystemTrayIcon.isSystemTrayAvailable():
-        QMessageBox.critical(None, "I hate Grid", "시스템 트레이를 쓸 수 없습니다.")
+        QMessageBox.critical(None, "I hate Grid", "System tray is not available.")
         return 1
     controller = App(app)
     app.aboutToQuit.connect(controller.cleanup)
