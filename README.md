@@ -1,6 +1,15 @@
 # I hate Grid 😈
 
+![install: not needed](https://img.shields.io/badge/install-not%20needed-brightgreen)
+![network: none](https://img.shields.io/badge/network-none%20(100%25%20offline)-blue)
+![no OCR](https://img.shields.io/badge/OCR-free%20(reads%20real%20text)-8a2be2)
+![no telemetry](https://img.shields.io/badge/telemetry-none-lightgrey)
+![Windows](https://img.shields.io/badge/Windows-10%20%7C%2011-0078D6)
+![license: MIT](https://img.shields.io/badge/license-MIT-green)
+
 > **That one annoying table. Grabbed in two clicks.**
+>
+> No install. No network. No OCR. No telemetry. It just reads the table already on your screen.
 
 No more retyping cells. No more "paste → fix every column" ritual. Just grab the table and go.
 
